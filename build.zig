@@ -32,6 +32,13 @@ pub fn build(b: *std.Build) void {
     // Add zli module
     exe.root_module.addImport("zli", zli.module("zli"));
 
+    // Add C defines for cross-compilation compatibility
+    exe.root_module.addCMacro("_GNU_SOURCE", "1");
+    exe.root_module.addCMacro("_DEFAULT_SOURCE", "1");
+    exe.root_module.addCMacro("_POSIX_C_SOURCE", "200809L");
+    exe.root_module.addCMacro("_FILE_OFFSET_BITS", "64");
+    exe.root_module.addCMacro("_TIME_BITS", "64");
+
     // Link libvips for image processing
     exe.linkSystemLibrary("vips");
     exe.linkSystemLibrary("glib-2.0");

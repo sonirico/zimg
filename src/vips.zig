@@ -3,6 +3,11 @@ const std = @import("std");
 // libvips C integration via @cImport
 // This module provides Zig wrappers for libvips C API
 pub const c = @cImport({
+    @cDefine("_GNU_SOURCE", "1");
+    @cDefine("_DEFAULT_SOURCE", "1");
+    @cDefine("_POSIX_C_SOURCE", "200809L");
+    @cDefine("_FILE_OFFSET_BITS", "64");
+    @cDefine("_TIME_BITS", "64");
     @cInclude("vips/vips.h");
 });
 
