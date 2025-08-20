@@ -1,0 +1,19 @@
+.{
+    .fingerprint = 0x61458e5a360e84a7,
+    .name = .zimg,
+    .version = "0.1.0",
+    .minimum_zig_version = "0.14.0",
+    .dependencies = .{
+        .zli = .{
+            .url = "git+https://github.com/xcaeser/zli#53450f766615967c5090afb00540e432cc8b7779",
+            .hash = "zli-3.7.1-LeUjpgU6AQBNLZY9yZNnldh1YGHAGVx6YBjoPjJhqQIz",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "bench",
+        "README.md",
+    },
+}
