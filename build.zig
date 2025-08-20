@@ -1,5 +1,16 @@
 const std = @import("std");
 
+fn addPathIfExists(exe: *std.Build.Step.Compile, path: []const u8, is_include: bool) void {
+    const stat = std.fs.cwd().statFile(path) catch return;
+    if (stat.kind == .directory) {
+        if (is_include) {
+            exe.addIncludePath(.{ .cwd_relative = path });
+        } else {
+            exe.addLibraryPath(.{ .cwd_relative = path });
+        }
+    }
+}
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -29,8 +40,15 @@ pub fn build(b: *std.Build) void {
     exe.linkSystemLibrary("gmodule-2.0");
     exe.linkLibC();
 
-    exe.addIncludePath(.{ .cwd_relative = "/usr/local/include" });
-    exe.addLibraryPath(.{ .cwd_relative = "/usr/local/lib" });
+    // Add include and library paths conditionally
+    addPathIfExists(exe, "/usr/local/include", true);
+    addPathIfExists(exe, "/usr/local/lib", false);
+    addPathIfExists(exe, "/usr/include", true);
+    addPathIfExists(exe, "/usr/include/vips", true);
+    addPathIfExists(exe, "/usr/include/glib-2.0", true);
+    addPathIfExists(exe, "/usr/lib/x86_64-linux-gnu/glib-2.0/include", true);
+    addPathIfExists(exe, "/usr/lib/x86_64-linux-gnu", false);
+    addPathIfExists(exe, "/usr/lib", false);
 
     b.installArtifact(exe);
 
