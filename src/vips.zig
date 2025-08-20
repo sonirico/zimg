@@ -3,11 +3,18 @@ const std = @import("std");
 // libvips C integration via @cImport
 // This module provides Zig wrappers for libvips C API
 pub const c = @cImport({
+    // Define time-related macros before including any system headers
+    @cDefine("__USE_TIME_BITS64", "1");
+    @cDefine("_TIME_BITS", "64");
+    @cDefine("_FILE_OFFSET_BITS", "64");
     @cDefine("_GNU_SOURCE", "1");
     @cDefine("_DEFAULT_SOURCE", "1");
-    @cDefine("_POSIX_C_SOURCE", "200809L");
-    @cDefine("_FILE_OFFSET_BITS", "64");
-    @cDefine("_TIME_BITS", "64");
+
+    // Include time.h first to establish time types
+    @cInclude("time.h");
+    @cInclude("sys/time.h");
+
+    // Now include vips
     @cInclude("vips/vips.h");
 });
 

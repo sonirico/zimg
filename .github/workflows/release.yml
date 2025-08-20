@@ -8,22 +8,18 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.target }}
+    name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            target: x86_64-linux
             artifact: zimg-linux-x86_64
-          - os: macos-latest
-            target: x86_64-macos
+          - os: macos-13  # Intel Mac
             artifact: zimg-darwin-x86_64
-          - os: macos-latest
-            target: aarch64-macos
+          - os: macos-latest  # ARM Mac
             artifact: zimg-darwin-arm64
           - os: windows-latest
-            target: x86_64-windows
             artifact: zimg-windows-x86_64.exe
 
     steps:
@@ -55,7 +51,7 @@ jobs:
       - name: Build
         if: matrix.os != 'windows-latest'
         run: |
-          zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.target }}
+          zig build -Doptimize=ReleaseFast
 
       - name: Build (Windows - Skip for now)
         if: matrix.os == 'windows-latest'
