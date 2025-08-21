@@ -169,13 +169,14 @@ fn run(ctx: zli.CommandContext) !void {
         try stdout.writeByte('\n');
     } else {
         const stdout = std.io.getStdOut().writer();
+        var size_buffer: [32]u8 = undefined;
         try stdout.print("Image: {s}\n", .{image_info.file});
         try stdout.print("  Format: {s}\n", .{image_info.format});
         try stdout.print("  Dimensions: {}x{}\n", .{ image_info.width, image_info.height });
         try stdout.print("  Channels: {}\n", .{image_info.channels});
         try stdout.print("  Bit depth: {}\n", .{image_info.bit_depth});
         try stdout.print("  Colorspace: {s}\n", .{image_info.colorspace});
-        try stdout.print("  Size: {} bytes ({:.2} MB)\n", .{ image_info.size_bytes, image_info.size_mb });
+        try stdout.print("  Size: {} bytes ({s})\n", .{ image_info.size_bytes, utils.formatSize(&size_buffer, image_info.size_bytes) });
         try stdout.print("  Has alpha: {}\n", .{image_info.has_alpha});
         try stdout.print("  Has ICC profile: {}\n", .{image_info.has_icc_profile});
         try stdout.print("  Total pixels: {}\n", .{image_info.total_pixels});
