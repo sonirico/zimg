@@ -15,6 +15,9 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // Add strip option
+    const strip = b.option(bool, "strip", "Strip debug symbols") orelse false;
+
     // Add zli dependency
     const zli = b.dependency("zli", .{
         .target = target,
@@ -27,6 +30,7 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+        .strip = strip,
     });
 
     // Add zli module
