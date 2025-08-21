@@ -1,5 +1,10 @@
 # zimg
 
+[![Zig](https://img.shields.io/badge/Zig-0.14+-F7A41D?style=flat&logo=zig&logoColor=white)](https://ziglang.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![libvips](https://img.shields.io/badge/libvips-8.17+-4B8BBE?style=flat)](https://libvips.github.io/libvips/)
+[![Release](https://img.shields.io/github/v/release/sonirico/zimg?style=flat)](https://github.com/sonirico/zimg/releases)
+
 Fast image processing CLI tool built with Zig and libvips. Designed for high-performance batch operations and pipeline integration.
 
 ## Installation
@@ -107,9 +112,9 @@ for img in *.jpg; do zimg inspect --json "$img"; done | jq '.size_bytes' | paste
 cat input.tiff | zimg optimize --quality 90 > output.jpg
 ```
 
-## TODO
+## Development Status
 
-### ✅ Implemented
+### Implemented
 - [x] Basic CLI structure with zli framework
 - [x] Image inspection with full metadata
 - [x] libvips integration for format detection
@@ -117,12 +122,12 @@ cat input.tiff | zimg optimize --quality 90 > output.jpg
 - [x] JSON output format
 - [x] Error handling and validation
 
-### 🚧 In Progress
+### In Progress
 - [ ] Optimize command with compression options
 - [ ] Crop command with coordinate validation
 - [ ] Scale command with aspect ratio preservation
 
-### 📋 Planned
+### Planned
 - [ ] Format conversion (JPEG, PNG, WebP, AVIF)
 - [ ] Batch processing mode
 - [ ] Configuration file support
@@ -133,7 +138,7 @@ cat input.tiff | zimg optimize --quality 90 > output.jpg
 - [ ] Multi-threading for batch operations
 - [ ] Plugin system for custom operations
 
-### 🔬 Research
+### Research
 - [ ] SIMD optimizations
 - [ ] WebAssembly target
 - [ ] GPU acceleration integration
