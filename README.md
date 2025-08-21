@@ -1,9 +1,15 @@
-# zimg
+<div align="center">
+  <img src="zimg.png" alt="zimg logo" title="zimg - Fast image processing CLI tool" width="200"/>
 
-[![Zig](https://img.shields.io/badge/Zig-0.14+-F7A41D?style=flat&logo=zig&logoColor=white)](https://ziglang.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![libvips](https://img.shields.io/badge/libvips-8.17+-4B8BBE?style=flat)](https://libvips.github.io/libvips/)
-[![Release](https://img.shields.io/github/v/release/sonirico/zimg?style=flat)](https://github.com/sonirico/zimg/releases)
+  # zimg
+  
+  Fast image processing CLI tool built with Zig and libvips. Designed for high-performance batch operations and pipeline integration.
+
+  [![Zig](https://img.shields.io/badge/Zig-0.14+-F7A41D?style=flat&logo=zig&logoColor=white)](https://ziglang.org/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+  [![libvips](https://img.shields.io/badge/libvips-8.17+-4B8BBE?style=flat)](https://libvips.github.io/libvips/)
+  [![Release](https://img.shields.io/github/v/release/sonirico/zimg?style=flat)](https://github.com/sonirico/zimg/releases)
+</div>
 
 Fast image processing CLI tool built with Zig and libvips. Designed for high-performance batch operations and pipeline integration.
 
