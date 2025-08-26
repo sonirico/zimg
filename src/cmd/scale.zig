@@ -1,8 +1,9 @@
 const std = @import("std");
+const Writer = std.io.Writer;
 const zli = @import("zli");
 
-pub fn register(allocator: std.mem.Allocator) !*zli.Command {
-    const cmd = try zli.Command.init(allocator, .{
+pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
+    const cmd = try zli.Command.init(writer, allocator, .{
         .name = "scale",
         .description = "Scale image to specified dimensions",
     }, run);
@@ -66,14 +67,18 @@ fn run(ctx: zli.CommandContext) !void {
     };
 
     const width = std.fmt.parseInt(u32, width_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid width: {s}\n", .{width_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid width: {s}\n", .{width_str});
+        try stderr_writer.flush();
         return;
     };
 
     const height = std.fmt.parseInt(u32, height_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid height: {s}\n", .{height_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid height: {s}\n", .{height_str});
+        try stderr_writer.flush();
         return;
     };
 
@@ -82,13 +87,17 @@ fn run(ctx: zli.CommandContext) !void {
     const interpolation = ctx.flag("interpolation", []const u8);
 
     if (json_output) {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("{{\"command\":\"scale\",\"file\":\"{s}\",\"width\":{},\"height\":{}}}\n", .{ file, width, height });
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("{{\"command\":\"scale\",\"file\":\"{s}\",\"width\":{},\"height\":{}}}\n", .{ file, width, height });
+        try stdout_writer.flush();
     } else {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("Scaling {s} to {}x{}\n", .{ file, width, height });
-        try stdout.print("  Keep aspect ratio: {}\n", .{keep_aspect});
-        try stdout.print("  Interpolation: {s}\n", .{interpolation});
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("Scaling {s} to {}x{}\n", .{ file, width, height });
+        try stdout_writer.print("  Keep aspect ratio: {}\n", .{keep_aspect});
+        try stdout_writer.print("  Interpolation: {s}\n", .{interpolation});
+        try stdout_writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips scaling logic
         // 1. Load image with vips_image_new_from_file()

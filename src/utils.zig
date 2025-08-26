@@ -30,7 +30,7 @@ pub fn loadImageFromBuffer(buffer: []const u8) vips.VipsError!vips.VipsImage {
 
 /// Read stdin to buffer if data is available
 pub fn readStdinBuffer(allocator: std.mem.Allocator) !?[]u8 {
-    const stdin = std.io.getStdIn();
+    const stdin = std.fs.File.stdin();
 
     // Check if stdin has data available (non-blocking check)
     // On Unix systems, we can use stat to check if stdin is a pipe/file

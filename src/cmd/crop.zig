@@ -1,8 +1,9 @@
 const std = @import("std");
+const Writer = std.io.Writer;
 const zli = @import("zli");
 
-pub fn register(allocator: std.mem.Allocator) !*zli.Command {
-    const cmd = try zli.Command.init(allocator, .{
+pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
+    const cmd = try zli.Command.init(writer, allocator, .{
         .name = "crop",
         .description = "Crop image to specified dimensions and position",
     }, run);
@@ -74,37 +75,49 @@ fn run(ctx: zli.CommandContext) !void {
     };
 
     const x = std.fmt.parseInt(i32, x_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid x coordinate: {s}\n", .{x_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid x coordinate: {s}\n", .{x_str});
+        try stderr_writer.flush();
         return;
     };
 
     const y = std.fmt.parseInt(i32, y_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid y coordinate: {s}\n", .{y_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid y coordinate: {s}\n", .{y_str});
+        try stderr_writer.flush();
         return;
     };
 
     const width = std.fmt.parseInt(u32, width_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid width: {s}\n", .{width_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid width: {s}\n", .{width_str});
+        try stderr_writer.flush();
         return;
     };
 
     const height = std.fmt.parseInt(u32, height_str, 10) catch {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: Invalid height: {s}\n", .{height_str});
+        const stderr = std.fs.File.stderr();
+        var stderr_writer = stderr.writerStreaming(&.{}).interface;
+        try stderr_writer.print("Error: Invalid height: {s}\n", .{height_str});
+        try stderr_writer.flush();
         return;
     };
 
     const json_output = ctx.flag("json", bool);
 
     if (json_output) {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("{{\"command\":\"crop\",\"file\":\"{s}\",\"x\":{},\"y\":{},\"width\":{},\"height\":{}}}\n", .{ file, x, y, width, height });
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("{{\"command\":\"crop\",\"file\":\"{s}\",\"x\":{},\"y\":{},\"width\":{},\"height\":{}}}\n", .{ file, x, y, width, height });
+        try stdout_writer.flush();
     } else {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("Cropping {s} to {}x{} from ({}, {})\n", .{ file, width, height, x, y });
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("Cropping {s} to {}x{} from ({}, {})\n", .{ file, width, height, x, y });
+        try stdout_writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips cropping logic
         // 1. Load image with vips_image_new_from_file()

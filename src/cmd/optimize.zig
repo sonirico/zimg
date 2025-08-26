@@ -1,8 +1,9 @@
 const std = @import("std");
+const Writer = std.io.Writer;
 const zli = @import("zli");
 
-pub fn register(allocator: std.mem.Allocator) !*zli.Command {
-    const cmd = try zli.Command.init(allocator, .{
+pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
+    const cmd = try zli.Command.init(writer, allocator, .{
         .name = "optimize",
         .description = "Optimize image file for size and quality",
     }, run);
@@ -59,14 +60,18 @@ fn run(ctx: zli.CommandContext) !void {
     const quality = std.fmt.parseInt(u8, quality_str, 10) catch 85;
 
     if (json_output) {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("{{\"command\":\"optimize\",\"file\":\"{s}\",\"palette\":{},\"quality\":{},\"strip\":{}}}\n", .{ file, palette, quality, strip });
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("{{\"command\":\"optimize\",\"file\":\"{s}\",\"palette\":{},\"quality\":{},\"strip\":{}}}\n", .{ file, palette, quality, strip });
+        try stdout_writer.flush();
     } else {
-        const stdout = std.io.getStdOut().writer();
-        try stdout.print("Optimizing {s} with options:\n", .{file});
-        try stdout.print("  Palette: {}\n", .{palette});
-        try stdout.print("  Quality: {}\n", .{quality});
-        try stdout.print("  Strip metadata: {}\n", .{strip});
+        const stdout = std.fs.File.stdout();
+        var stdout_writer = stdout.writerStreaming(&.{}).interface;
+        try stdout_writer.print("Optimizing {s} with options:\n", .{file});
+        try stdout_writer.print("  Palette: {}\n", .{palette});
+        try stdout_writer.print("  Quality: {}\n", .{quality});
+        try stdout_writer.print("  Strip metadata: {}\n", .{strip});
+        try stdout_writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips optimization logic
         // 1. Load image with vips_image_new_from_file()

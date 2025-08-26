@@ -1,7 +1,7 @@
 PROJECT_NAME := zimg
 DOCKERFILE := Dockerfile
-ZIG_VERSION ?= zig14
-ZIG := $(ZIG_VERSION)
+ZIG_VERSION ?= zig151
+ZIG := zig
 
 # Build configuration
 OPTIMIZE ?= ReleaseFast

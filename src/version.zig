@@ -1,8 +1,9 @@
 const std = @import("std");
+const Writer = std.io.Writer;
 const zli = @import("zli");
 
-pub fn register(allocator: std.mem.Allocator) !*zli.Command {
-    return zli.Command.init(allocator, .{
+pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
+    return zli.Command.init(writer, allocator, .{
         .name = "version",
         .shortcut = "v",
         .description = "Show zimg version",
@@ -11,6 +12,8 @@ pub fn register(allocator: std.mem.Allocator) !*zli.Command {
 
 fn show(ctx: zli.CommandContext) !void {
     _ = ctx;
-    const stdout = std.io.getStdOut().writer();
-    try stdout.print("zimg version 0.1.0\n", .{});
+    const stdout = std.fs.File.stdout();
+    var stdout_writer = stdout.writerStreaming(&.{}).interface;
+    try stdout_writer.print("zimg version 0.1.0\n", .{});
+    try stdout_writer.flush();
 }
