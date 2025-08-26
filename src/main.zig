@@ -1,5 +1,6 @@
 // src/main.zig
 const std = @import("std");
+const fs = std.fs;
 const cli = @import("cli.zig");
 
 // Forzar que se incluyan todos los tests
@@ -8,12 +9,15 @@ comptime {
 }
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+    const allocator = std.heap.page_allocator;
 
-    var root = try cli.build(allocator);
+    const file = fs.File.stdout();
+    var writer = file.writerStreaming(&.{}).interface;
+
+    const root = try cli.build(&writer, allocator);
     defer root.deinit();
 
     try root.execute(.{});
+
+    try writer.flush();
 }

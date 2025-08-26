@@ -27,10 +27,12 @@ pub fn build(b: *std.Build) void {
     // Main executable
     const exe = b.addExecutable(.{
         .name = "zimg",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
-        .strip = strip,
+        .root_module= b.addModule("zimg", .{
+            .root_source_file = b.path("./src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .strip = strip,
+        }),
     });
 
     // Add zli module
@@ -74,9 +76,11 @@ pub fn build(b: *std.Build) void {
 
     // Add test step that tests all files
     const unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/main.zig"), // De vuelta a main.zig
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.addModule("test", .{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     const run_unit_tests = b.addRunArtifact(unit_tests);

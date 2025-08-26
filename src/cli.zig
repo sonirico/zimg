@@ -1,4 +1,5 @@
 const std = @import("std");
+const Writer = std.io.Writer;
 const zli = @import("zli");
 
 const version = @import("version.zig");
@@ -7,18 +8,18 @@ const inspect = @import("cmd/inspect.zig");
 const crop = @import("cmd/crop.zig");
 const scale = @import("cmd/scale.zig");
 
-pub fn build(allocator: std.mem.Allocator) !*zli.Command {
-    const root = try zli.Command.init(allocator, .{
+pub fn build(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
+    const root = try zli.Command.init(writer, allocator, .{
         .name = "zimg",
         .description = "High-performance image processing toolkit",
     }, showHelp);
 
     try root.addCommands(&.{
-        try optimize.register(allocator),
-        try inspect.register(allocator),
-        try crop.register(allocator),
-        try scale.register(allocator),
-        try version.register(allocator),
+        try optimize.register(writer, allocator),
+        try inspect.register(writer, allocator),
+        try crop.register(writer, allocator),
+        try scale.register(writer, allocator),
+        try version.register(writer, allocator),
     });
 
     return root;
