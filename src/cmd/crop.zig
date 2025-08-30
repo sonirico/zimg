@@ -1,6 +1,7 @@
 const std = @import("std");
 const Writer = std.io.Writer;
 const zli = @import("zli");
+const logger = @import("../logger.zig");
 
 pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
     const cmd = try zli.Command.init(writer, allocator, .{
@@ -75,34 +76,22 @@ fn run(ctx: zli.CommandContext) !void {
     };
 
     const x = std.fmt.parseInt(i32, x_str, 10) catch {
-        const stderr = std.fs.File.stderr();
-        var stderr_writer = stderr.writerStreaming(&.{}).interface;
-        try stderr_writer.print("Error: Invalid x coordinate: {s}\n", .{x_str});
-        try stderr_writer.flush();
+        logger.err("Invalid x coordinate: {s}", .{x_str});
         return;
     };
 
     const y = std.fmt.parseInt(i32, y_str, 10) catch {
-        const stderr = std.fs.File.stderr();
-        var stderr_writer = stderr.writerStreaming(&.{}).interface;
-        try stderr_writer.print("Error: Invalid y coordinate: {s}\n", .{y_str});
-        try stderr_writer.flush();
+        logger.err("Invalid y coordinate: {s}", .{y_str});
         return;
     };
 
     const width = std.fmt.parseInt(u32, width_str, 10) catch {
-        const stderr = std.fs.File.stderr();
-        var stderr_writer = stderr.writerStreaming(&.{}).interface;
-        try stderr_writer.print("Error: Invalid width: {s}\n", .{width_str});
-        try stderr_writer.flush();
+        logger.err("Invalid width: {s}", .{width_str});
         return;
     };
 
     const height = std.fmt.parseInt(u32, height_str, 10) catch {
-        const stderr = std.fs.File.stderr();
-        var stderr_writer = stderr.writerStreaming(&.{}).interface;
-        try stderr_writer.print("Error: Invalid height: {s}\n", .{height_str});
-        try stderr_writer.flush();
+        logger.err("Invalid height: {s}", .{height_str});
         return;
     };
 

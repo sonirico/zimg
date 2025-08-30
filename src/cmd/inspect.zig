@@ -3,6 +3,7 @@ const Writer = std.io.Writer;
 const zli = @import("zli");
 const vips = @import("../vips.zig");
 const utils = @import("../utils.zig");
+const logger = @import("../logger.zig");
 
 const ImageInfo = struct {
     file: []const u8,
@@ -50,10 +51,7 @@ fn run(ctx: zli.CommandContext) !void {
 
     // Initialize libvips
     vips.init() catch |err| {
-        const stderr = std.fs.File.stderr();
-        var stderr_writer = stderr.writerStreaming(&.{}).interface;
-        try stderr_writer.print("Error: Failed to initialize libvips: {}\n", .{err});
-        try stderr_writer.flush();
+        logger.err("Failed to initialize libvips: {}", .{err});
         return;
     };
     defer vips.shutdown();
@@ -71,23 +69,17 @@ fn run(ctx: zli.CommandContext) !void {
         filename = "<stdin>";
         size_bytes = buffer.len;
         image = utils.loadImageFromBuffer(buffer) catch |err| {
-            const stderr = std.fs.File.stderr();
-            var stderr_writer = stderr.writerStreaming(&.{}).interface;
             switch (err) {
-                error.LoadFailed => try stderr_writer.print("Error: Cannot load image from stdin\n", .{}),
-                error.OutOfMemory => try stderr_writer.print("Error: Out of memory\n", .{}),
-                else => try stderr_writer.print("Error: Failed to load image: {}\n", .{err}),
+                error.LoadFailed => logger.err("Cannot load image from stdin", .{}),
+                error.OutOfMemory => logger.err("Out of memory", .{}),
+                else => logger.err("Failed to load image: {}", .{err}),
             }
-            try stderr_writer.flush();
             return;
         };
     } else {
         // Load from file argument (now uses buffer internally)
         const file = ctx.getArg("file") orelse {
-            const stderr = std.fs.File.stderr();
-            var stderr_writer = stderr.writerStreaming(&.{}).interface;
-            try stderr_writer.print("Error: No input provided. Specify a file or pipe image data to stdin.\n", .{});
-            try stderr_writer.flush();
+            logger.err("No input provided. Specify a file or pipe image data to stdin.", .{});
             try ctx.command.printHelp();
             return;
         };
@@ -97,22 +89,16 @@ fn run(ctx: zli.CommandContext) !void {
         if (std.fs.cwd().statFile(filename)) |file_stat| {
             size_bytes = file_stat.size;
         } else |err| {
-            const stderr = std.fs.File.stderr();
-            var stderr_writer = stderr.writerStreaming(&.{}).interface;
-            try stderr_writer.print("Warning: Cannot get file size: {}\n", .{err});
-            try stderr_writer.flush();
+            logger.warn("Cannot get file size: {}", .{err});
             size_bytes = 0;
         }
 
         image = utils.loadImage(ctx.allocator, file) catch |err| {
-            const stderr = std.fs.File.stderr();
-            var stderr_writer = stderr.writerStreaming(&.{}).interface;
             switch (err) {
-                error.LoadFailed => try stderr_writer.print("Error: Cannot load image file '{s}'\n", .{file}),
-                error.OutOfMemory => try stderr_writer.print("Error: Out of memory\n", .{}),
-                else => try stderr_writer.print("Error: Failed to load image: {}\n", .{err}),
+                error.LoadFailed => logger.err("Cannot load image file '{s}'", .{file}),
+                error.OutOfMemory => logger.err("Out of memory", .{}),
+                else => logger.err("Failed to load image: {}", .{err}),
             }
-            try stderr_writer.flush();
             return;
         };
     }
@@ -182,13 +168,13 @@ fn run(ctx: zli.CommandContext) !void {
     } else {
         const stdout = std.fs.File.stdout();
         var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        var size_buffer: [32]u8 = undefined;
         try stdout_writer.print("Image: {s}\n", .{image_info.file});
         try stdout_writer.print("  Format: {s}\n", .{image_info.format});
         try stdout_writer.print("  Dimensions: {}x{}\n", .{ image_info.width, image_info.height });
         try stdout_writer.print("  Channels: {}\n", .{image_info.channels});
         try stdout_writer.print("  Bit depth: {}\n", .{image_info.bit_depth});
         try stdout_writer.print("  Colorspace: {s}\n", .{image_info.colorspace});
+        var size_buffer: [32]u8 = undefined;
         try stdout_writer.print("  Size: {} bytes ({s})\n", .{ image_info.size_bytes, utils.formatSize(&size_buffer, image_info.size_bytes) });
         try stdout_writer.print("  Has alpha: {}\n", .{image_info.has_alpha});
         try stdout_writer.print("  Has ICC profile: {}\n", .{image_info.has_icc_profile});
