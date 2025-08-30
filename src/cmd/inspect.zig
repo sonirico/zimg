@@ -56,53 +56,10 @@ fn run(ctx: zli.CommandContext) !void {
     };
     defer vips.shutdown();
 
-    // Try to read from stdin first
-    const stdin_buffer = utils.readStdinBuffer(ctx.allocator) catch null;
-    defer if (stdin_buffer) |buf| ctx.allocator.free(buf);
+    var result = utils.readImageFromCmd(ctx) orelse return;
+    defer result.image.deinit();
 
-    var image: vips.VipsImage = undefined;
-    var filename: []const u8 = undefined;
-    var size_bytes: u64 = 0;
-
-    if (stdin_buffer) |buffer| {
-        // Load from stdin buffer
-        filename = "<stdin>";
-        size_bytes = buffer.len;
-        image = utils.loadImageFromBuffer(buffer) catch |err| {
-            switch (err) {
-                error.LoadFailed => logger.err("Cannot load image from stdin", .{}),
-                error.OutOfMemory => logger.err("Out of memory", .{}),
-                else => logger.err("Failed to load image: {}", .{err}),
-            }
-            return;
-        };
-    } else {
-        // Load from file argument (now uses buffer internally)
-        const file = ctx.getArg("file") orelse {
-            logger.err("No input provided. Specify a file or pipe image data to stdin.", .{});
-            try ctx.command.printHelp();
-            return;
-        };
-        filename = file;
-
-        // Get file size for metadata
-        if (std.fs.cwd().statFile(filename)) |file_stat| {
-            size_bytes = file_stat.size;
-        } else |err| {
-            logger.warn("Cannot get file size: {}", .{err});
-            size_bytes = 0;
-        }
-
-        image = utils.loadImage(ctx.allocator, file) catch |err| {
-            switch (err) {
-                error.LoadFailed => logger.err("Cannot load image file '{s}'", .{file}),
-                error.OutOfMemory => logger.err("Out of memory", .{}),
-                else => logger.err("Failed to load image: {}", .{err}),
-            }
-            return;
-        };
-    }
-    defer image.deinit();
+    const image = result.image;
 
     // Extract image properties
     const width = image.getWidth();
@@ -140,18 +97,18 @@ fn run(ctx: zli.CommandContext) !void {
     const gcd = std.math.gcd(width, height);
     const aspect_w = width / gcd;
     const aspect_h = height / gcd;
-    const size_mb = @as(f64, @floatFromInt(size_bytes)) / (1024.0 * 1024.0);
+    const size_mb = @as(f64, @floatFromInt(result.size_bytes)) / (1024.0 * 1024.0);
 
     // Create structured data
     const image_info = ImageInfo{
-        .file = filename,
+        .file = result.filename,
         .format = format_name,
         .width = width,
         .height = height,
         .channels = channels,
         .bit_depth = bit_depth,
         .colorspace = colorspace,
-        .size_bytes = size_bytes,
+        .size_bytes = result.size_bytes,
         .has_alpha = has_alpha,
         .has_icc_profile = has_icc_profile,
         .total_pixels = total_pixels,
