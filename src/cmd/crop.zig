@@ -98,15 +98,11 @@ fn run(ctx: zli.CommandContext) !void {
     const json_output = ctx.flag("json", bool);
 
     if (json_output) {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("{{\"command\":\"crop\",\"file\":\"{s}\",\"x\":{},\"y\":{},\"width\":{},\"height\":{}}}\n", .{ file, x, y, width, height });
-        try stdout_writer.flush();
+        try ctx.writer.print("{{\"command\":\"crop\",\"file\":\"{s}\",\"x\":{},\"y\":{},\"width\":{},\"height\":{}}}\n", .{ file, x, y, width, height });
+        try ctx.writer.flush();
     } else {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("Cropping {s} to {}x{} from ({}, {})\n", .{ file, width, height, x, y });
-        try stdout_writer.flush();
+        try ctx.writer.print("Cropping {s} to {}x{} from ({}, {})\n", .{ file, width, height, x, y });
+        try ctx.writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips cropping logic
         // 1. Load image with vips_image_new_from_file()

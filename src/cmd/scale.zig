@@ -82,17 +82,13 @@ fn run(ctx: zli.CommandContext) !void {
     const interpolation = ctx.flag("interpolation", []const u8);
 
     if (json_output) {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("{{\"command\":\"scale\",\"file\":\"{s}\",\"width\":{},\"height\":{}}}\n", .{ file, width, height });
-        try stdout_writer.flush();
+        try ctx.writer.print("{{\"command\":\"scale\",\"file\":\"{s}\",\"width\":{},\"height\":{}}}\n", .{ file, width, height });
+        try ctx.writer.flush();
     } else {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("Scaling {s} to {}x{}\n", .{ file, width, height });
-        try stdout_writer.print("  Keep aspect ratio: {}\n", .{keep_aspect});
-        try stdout_writer.print("  Interpolation: {s}\n", .{interpolation});
-        try stdout_writer.flush();
+        try ctx.writer.print("Scaling {s} to {}x{}\n", .{ file, width, height });
+        try ctx.writer.print("  Keep aspect ratio: {}\n", .{keep_aspect});
+        try ctx.writer.print("  Interpolation: {s}\n", .{interpolation});
+        try ctx.writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips scaling logic
         // 1. Load image with vips_image_new_from_file()

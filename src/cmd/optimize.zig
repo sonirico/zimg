@@ -60,18 +60,14 @@ fn run(ctx: zli.CommandContext) !void {
     const quality = std.fmt.parseInt(u8, quality_str, 10) catch 85;
 
     if (json_output) {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("{{\"command\":\"optimize\",\"file\":\"{s}\",\"palette\":{},\"quality\":{},\"strip\":{}}}\n", .{ file, palette, quality, strip });
-        try stdout_writer.flush();
+        try ctx.writer.print("{{\"command\":\"optimize\",\"file\":\"{s}\",\"palette\":{},\"quality\":{},\"strip\":{}}}\n", .{ file, palette, quality, strip });
+        try ctx.writer.flush();
     } else {
-        const stdout = std.fs.File.stdout();
-        var stdout_writer = stdout.writerStreaming(&.{}).interface;
-        try stdout_writer.print("Optimizing {s} with options:\n", .{file});
-        try stdout_writer.print("  Palette: {}\n", .{palette});
-        try stdout_writer.print("  Quality: {}\n", .{quality});
-        try stdout_writer.print("  Strip metadata: {}\n", .{strip});
-        try stdout_writer.flush();
+        try ctx.writer.print("Optimizing {s} with options:\n", .{file});
+        try ctx.writer.print("  Palette: {}\n", .{palette});
+        try ctx.writer.print("  Quality: {}\n", .{quality});
+        try ctx.writer.print("  Strip metadata: {}\n", .{strip});
+        try ctx.writer.flush();
 
         // IMPLEMENTATION PLACEHOLDER: Real libvips optimization logic
         // 1. Load image with vips_image_new_from_file()
