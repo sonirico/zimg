@@ -97,7 +97,9 @@ zimg optimize --palette photo.png  # Enable palette optimization
 
 **crop** - Extract image regions
 ```bash
-zimg crop photo.jpg 100 100 800 600  # x y width height
+zimg crop photo.jpg 800 600  # width height (crops from top-left by default)
+zimg crop photo.jpg 800 600 --topX=100 --topY=100  # with custom starting position
+zimg crop photo.jpg 800 600 -x 100 -y 100  # short form
 ```
 
 **scale** - Resize images
@@ -127,10 +129,10 @@ cat input.tiff | zimg optimize --quality 90 > output.jpg
 - [x] Pipeline support (stdin/stdout)
 - [x] JSON output format
 - [x] Error handling and validation
+- [x] Crop command with coordinate validation and optional positioning
 
 ### In Progress
 - [ ] Optimize command with compression options
-- [ ] Crop command with coordinate validation
 - [ ] Scale command with aspect ratio preservation
 
 ### Planned
