@@ -26,6 +26,22 @@ pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
         .default_value = .{ .String = "" },
     });
 
+    try cmd.addFlag(.{
+        .name = "topX",
+        .shortcut = "x",
+        .description = "X coordinate of crop area (default: 0)",
+        .type = .String,
+        .default_value = .{ .String = "0" },
+    });
+
+    try cmd.addFlag(.{
+        .name = "topY",
+        .shortcut = "y",
+        .description = "Y coordinate of crop area (default: 0)",
+        .type = .String,
+        .default_value = .{ .String = "0" },
+    });
+
     try cmd.addPositionalArg(.{
         .name = "file",
         .description = "Input image file (optional if reading from stdin)",
@@ -44,18 +60,6 @@ pub fn register(writer: *Writer, allocator: std.mem.Allocator) !*zli.Command {
         .required = true,
     });
 
-    try cmd.addPositionalArg(.{
-        .name = "topX",
-        .description = "X coordinate of crop area (default: 0)",
-        .required = false,
-    });
-
-    try cmd.addPositionalArg(.{
-        .name = "topY",
-        .description = "Y coordinate of crop area (default: 0)",
-        .required = false,
-    });
-
     return cmd;
 }
 
@@ -72,9 +76,9 @@ fn run(ctx: zli.CommandContext) !void {
     var image = result.image;
     defer image.deinit();
 
-    // Parse coordinates with defaults of 0
-    const x_str = ctx.getArg("topX") orelse "0";
-    const y_str = ctx.getArg("topY") orelse "0";
+    // Parse coordinates from flags (with defaults of 0)
+    const x_str = ctx.flag("topX", []const u8);
+    const y_str = ctx.flag("topY", []const u8);
     
     const width_str = ctx.getArg("width") orelse {
         logger.err("Width parameter is required");
